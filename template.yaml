@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: ABM Git Bot
+
+Globals:
+  Function:
+    Timeout: 15
+    MemorySize: 256
+
+Resources:
+  AbmGitBotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Events:
+        AbmGitWebhook:
+          Type: Api
+          Properties:
+            Path: /github
+            Method: post
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./abm_telegram_git_bot
+      DockerTag: python3.9-v1
+
+Outputs:
+  AbmGitBotApi:
+    Description: "API Gateway endpoint URL for Prod stage for ABM Git Bot function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/github/"
+  AbmGitBotFunction:
+    Description: "ABM Git Bot Lambda Function ARN"
+    Value: !GetAtt AbmGitBotFunction.Arn
+  AbmGitBotFunctionIamRole:
+    Description: "Implicit IAM Role created for ABM Git Bot function"
+    Value: !GetAtt AbmGitBotFunctionRole.Arn
